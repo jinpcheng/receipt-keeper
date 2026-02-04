@@ -9,3 +9,6 @@ Next steps (planned):
 - Camera capture + upload
 - Review extracted fields before saving
 - Receipt list + edit
+
+API base URL:
+- Edit `android/app/build.gradle.kts` `API_BASE_URL` to match your backend host.
