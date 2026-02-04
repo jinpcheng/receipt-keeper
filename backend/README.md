@@ -2,7 +2,7 @@
 
 Quick start (local):
 
-1) Copy `.env.example` to `.env`.
+1) Copy `.env.example` to `.env` and set a strong `SECRET_KEY`.
 2) Create a virtualenv and install deps:
 
 ```bash
