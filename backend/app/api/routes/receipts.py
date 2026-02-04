@@ -1,19 +1,30 @@
 import hashlib
+import io
 import uuid
+from datetime import datetime
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
 from app.core.config import settings
 from app.crud.receipt import attach_file_to_receipt, create_receipt, get_receipt_by_id, update_receipt
+from app.crud.receipt_query import query_receipts
 from app.models.enums import ExtractionStatus
 from app.models.receipt_extraction import ReceiptExtraction
 from app.models.receipt_file import ReceiptFile
 from app.models.user import User
 from app.db.session import get_db
-from app.schemas.receipt import ReceiptCreate, ReceiptExtractionResponse, ReceiptFields, ReceiptRead, ReceiptUpdate
+from app.schemas.receipt import (
+    ReceiptCreate,
+    ReceiptExtractionResponse,
+    ReceiptFields,
+    ReceiptListResponse,
+    ReceiptRead,
+    ReceiptUpdate,
+)
 from app.services.extraction import extract_receipt
 
 
@@ -136,3 +147,113 @@ def update_receipt_record(
     data = payload.model_dump(exclude_unset=True)
     receipt = update_receipt(db, receipt, data)
     return ReceiptRead.model_validate(receipt)
+
+
+@router.get("", response_model=ReceiptListResponse)
+def list_receipts(
+    start_date: datetime | None = Query(default=None),
+    end_date: datetime | None = Query(default=None),
+    category: str | None = Query(default=None),
+    min_total: float | None = Query(default=None),
+    max_total: float | None = Query(default=None),
+    payment_type: str | None = Query(default=None),
+    vendor: str | None = Query(default=None),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=200),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    items, total = query_receipts(
+        db=db,
+        user_id=current_user.id,
+        start_date=start_date,
+        end_date=end_date,
+        category=category,
+        min_total=min_total,
+        max_total=max_total,
+        payment_type=payment_type,
+        vendor=vendor,
+        page=page,
+        page_size=page_size,
+    )
+    return ReceiptListResponse(
+        items=[ReceiptRead.model_validate(item) for item in items],
+        page=page,
+        page_size=page_size,
+        total=total,
+    )
+
+
+@router.get("/export")
+def export_receipts_csv(
+    start_date: datetime | None = Query(default=None),
+    end_date: datetime | None = Query(default=None),
+    category: str | None = Query(default=None),
+    min_total: float | None = Query(default=None),
+    max_total: float | None = Query(default=None),
+    payment_type: str | None = Query(default=None),
+    vendor: str | None = Query(default=None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    items, _total = query_receipts(
+        db=db,
+        user_id=current_user.id,
+        start_date=start_date,
+        end_date=end_date,
+        category=category,
+        min_total=min_total,
+        max_total=max_total,
+        payment_type=payment_type,
+        vendor=vendor,
+        page=1,
+        page_size=1000000,
+    )
+
+    output = io.StringIO()
+    headers = [
+        "vendor_name",
+        "location",
+        "purchased_at",
+        "category",
+        "subtotal",
+        "tax",
+        "total",
+        "currency",
+        "payment_type",
+        "card_type",
+        "card_last4",
+        "ref_number",
+        "invoice_number",
+        "auth_number",
+        "notes",
+    ]
+    output.write(",".join(headers) + "\n")
+    for receipt in items:
+        row = [
+            receipt.vendor_name,
+            receipt.location,
+            receipt.purchased_at.isoformat() if receipt.purchased_at else "",
+            receipt.category.value if receipt.category else "",
+            receipt.subtotal,
+            receipt.tax,
+            receipt.total,
+            receipt.currency,
+            receipt.payment_type.value if receipt.payment_type else "",
+            receipt.card_type.value if receipt.card_type else "",
+            receipt.card_last4,
+            receipt.ref_number,
+            receipt.invoice_number,
+            receipt.auth_number,
+            receipt.notes,
+        ]
+        escaped = [
+            "" if value is None else str(value).replace('"', '""')
+            for value in row
+        ]
+        output.write(",".join(f'"{value}"' for value in escaped) + "\n")
+
+    buffer = io.BytesIO(output.getvalue().encode("utf-8"))
+    response = StreamingResponse(buffer, media_type="text/csv")
+    response.headers["Content-Disposition"] = "attachment; filename=receipts.csv"
+    return response
