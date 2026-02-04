@@ -36,3 +36,13 @@ Docker Compose (recommended for local dev):
 docker compose up -d
 docker compose exec api alembic -c alembic.ini upgrade head
 ```
+
+OCR + LLM setup:
+- OCR uses PaddleOCR (CPU). LLM uses Ollama.
+- Pull a model into Ollama (example):
+
+```bash
+docker compose exec ollama ollama pull llama3.1
+```
+
+- Configure `.env` if you want a different model or OCR language.
