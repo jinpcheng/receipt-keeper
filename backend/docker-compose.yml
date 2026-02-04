@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: receipt-keeper-db
+    environment:
+      POSTGRES_DB: receipt_keeper
+      POSTGRES_USER: receipt_user
+      POSTGRES_PASSWORD: receipt_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - receipt_keeper_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U receipt_user -d receipt_keeper"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: receipt-keeper-api
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8081:8000"
+    volumes:
+      - ./app:/app/app
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: receipt-keeper-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - receipt_keeper_ollama:/root/.ollama
+
+volumes:
+  receipt_keeper_db:
+  receipt_keeper_ollama:

@@ -2,7 +2,7 @@
 
 Quick start (local):
 
-1) Copy `.env.example` to `.env` and edit `DATABASE_URL`.
+1) Copy `.env.example` to `.env`.
 2) Create a virtualenv and install deps:
 
 ```bash
@@ -18,10 +18,17 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 Health check:
-`GET http://localhost:8000/api/v1/health`
+`GET http://localhost:8081/api/v1/health`
 
 Migrations:
 
 ```bash
 alembic -c alembic.ini upgrade head
+```
+
+Docker Compose (recommended for local dev):
+
+```bash
+docker compose up -d
+docker compose exec api alembic -c alembic.ini upgrade head
 ```
