@@ -29,6 +29,11 @@ Queries + export:
 - `GET /api/v1/receipts/export` returns CSV
 - `GET /api/v1/receipts/{id}/photo` returns receipt image
 
+Postman:
+
+- Collection: `docs/postman/receipt-keeper.postman_collection.json`
+- Environment: `docs/postman/receipt-keeper.postman_environment.json`
+
 Migrations:
 
 ```bash
