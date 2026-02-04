@@ -34,6 +34,23 @@ Postman:
 - Collection: `docs/postman/receipt-keeper.postman_collection.json`
 - Environment: `docs/postman/receipt-keeper.postman_environment.json`
 
+Tests:
+1) Install dev deps:
+
+```bash
+pip install -r requirements.txt -r requirements-dev.txt
+```
+
+2) Set `TEST_DATABASE_URL` (must be Postgres, not SQLite), then:
+
+```bash
+pytest
+```
+
+Coverage:
+- Coverage reports are generated in the test output and `coverage.xml`.
+- Tests fail if coverage drops below 80%.
+
 Migrations:
 
 ```bash
