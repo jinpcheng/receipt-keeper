@@ -20,6 +20,10 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 Health check:
 `GET http://localhost:8081/api/v1/health`
 
+Auth + extraction flow:
+1) Register/Login to get `access_token`
+2) `POST /api/v1/receipts/extractions` with `Authorization: Bearer <token>` and form-data `file`
+
 Migrations:
 
 ```bash

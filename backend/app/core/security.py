@@ -46,3 +46,7 @@ def get_refresh_token(subject: str) -> str:
 
 def is_refresh_token(payload: dict[str, Any]) -> bool:
     return payload.get("type") == "refresh"
+
+
+def is_access_token(payload: dict[str, Any]) -> bool:
+    return payload.get("type") == "access"
