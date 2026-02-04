@@ -13,6 +13,7 @@ from app.models.receipt_file import ReceiptFile
 from app.models.user import User
 from app.db.session import get_db
 from app.schemas.receipt import ReceiptExtractionResponse, ReceiptFields
+from app.services.extraction import extract_receipt
 
 
 router = APIRouter(prefix="/receipts")
@@ -63,16 +64,36 @@ def create_extraction(
     db.commit()
     db.refresh(receipt_file)
 
-    extracted = ReceiptFields(currency=currency)
     extraction = ReceiptExtraction(
         user_id=current_user.id,
         receipt_file_id=receipt_file.id,
-        status=ExtractionStatus.completed,
-        raw_ocr_text="",
-        extracted_json=extracted.model_dump(),
-        confidence=0,
-        model_name="local-ocr-llm-placeholder",
+        status=ExtractionStatus.pending,
+        raw_ocr_text=None,
+        extracted_json=None,
+        confidence=None,
+        model_name=settings.ollama_model,
     )
+    db.add(extraction)
+    db.commit()
+    db.refresh(extraction)
+
+    try:
+        result = extract_receipt(str(file_path), currency)
+    except Exception:
+        extraction.status = ExtractionStatus.failed
+        db.add(extraction)
+        db.commit()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Extraction failed")
+
+    extracted_fields = ReceiptFields.model_validate(result.extracted)
+    if currency and not extracted_fields.currency:
+        extracted_fields.currency = currency
+
+    extraction.status = ExtractionStatus.completed
+    extraction.raw_ocr_text = result.ocr_text
+    extraction.extracted_json = extracted_fields.model_dump()
+    extraction.confidence = result.confidence
+    extraction.model_name = result.model_name
     db.add(extraction)
     db.commit()
     db.refresh(extraction)
@@ -81,8 +102,8 @@ def create_extraction(
         extraction_id=str(extraction.id),
         receipt_file_id=str(receipt_file.id),
         status=extraction.status.value,
-        extracted=extracted,
-        confidence=float(extraction.confidence or 0),
+        extracted=extracted_fields,
+        confidence=float(extraction.confidence) if extraction.confidence is not None else None,
         model_name=extraction.model_name,
         ocr_text=extraction.raw_ocr_text,
     )
