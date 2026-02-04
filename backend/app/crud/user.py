@@ -8,6 +8,10 @@ def get_user_by_email(db: Session, email: str) -> User | None:
     return db.query(User).filter(User.email == email).first()
 
 
+def get_user_by_id(db: Session, user_id: str) -> User | None:
+    return db.query(User).filter(User.id == user_id).first()
+
+
 def create_user(db: Session, email: str, password: str) -> User:
     user = User(email=email, password_hash=get_password_hash(password))
     db.add(user)
