@@ -27,6 +27,7 @@ Auth + extraction flow:
 Queries + export:
 - `GET /api/v1/receipts` with filters: `start_date`, `end_date`, `category`, `min_total`, `max_total`, `payment_type`, `vendor`
 - `GET /api/v1/receipts/export` returns CSV
+- `GET /api/v1/receipts/{id}/photo` returns receipt image
 
 Migrations:
 
