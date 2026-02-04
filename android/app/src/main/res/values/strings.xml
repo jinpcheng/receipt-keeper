@@ -10,4 +10,16 @@
     <string name="auth_error_failed">Authentication failed.</string>
     <string name="auth_success">Signed in.</string>
     <string name="main_subtitle">Authenticated. Continue to capture receipts.</string>
+    <string name="capture_button">Capture receipt</string>
+    <string name="capture_ready">Ready to capture a receipt.</string>
+    <string name="capture_uploading">Uploading receipt...</string>
+    <string name="capture_uploaded">Uploaded. Review extracted data.</string>
+    <string name="capture_upload_failed">Upload failed.</string>
+    <string name="capture_cancelled">Capture cancelled.</string>
+    <string name="capture_storage_error">Storage unavailable.</string>
+    <string name="review_title">Review receipt</string>
+    <string name="review_save">Save receipt</string>
+    <string name="review_back">Back</string>
+    <string name="review_saved">Receipt saved.</string>
+    <string name="review_save_failed">Save failed.</string>
 </resources>

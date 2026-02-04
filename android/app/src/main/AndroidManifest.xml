@@ -4,6 +4,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application
+        android:name=".ReceiptKeeperApp"
         android:label="@string/app_name"
         android:theme="@style/Theme.ReceiptKeeper">
         <activity
@@ -15,6 +16,17 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity" />
+        <activity android:name=".ReviewActivity" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

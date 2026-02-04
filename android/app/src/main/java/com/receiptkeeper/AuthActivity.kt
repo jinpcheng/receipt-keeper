@@ -27,6 +27,11 @@ class AuthActivity : AppCompatActivity() {
         val progress = findViewById<ProgressBar>(R.id.auth_progress)
 
         val tokenStore = TokenStore(this)
+        if (!tokenStore.accessToken().isNullOrBlank()) {
+            startActivity(Intent(this@AuthActivity, MainActivity::class.java))
+            finish()
+            return
+        }
 
         fun setLoading(loading: Boolean) {
             progress.visibility = if (loading) ProgressBar.VISIBLE else ProgressBar.GONE
