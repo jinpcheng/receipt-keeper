@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Receipt Keeper</string>
+    <string name="auth_title">Sign in</string>
+    <string name="auth_email">Email</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_login">Login</string>
+    <string name="auth_register">Register</string>
+    <string name="auth_status_idle">Enter your credentials.</string>
+    <string name="auth_error_missing_fields">Email and password are required.</string>
+    <string name="auth_error_failed">Authentication failed.</string>
+    <string name="auth_success">Signed in.</string>
+    <string name="main_subtitle">Authenticated. Continue to capture receipts.</string>
 </resources>
