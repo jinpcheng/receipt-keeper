@@ -22,6 +22,26 @@ class ReceiptFields(BaseModel):
     notes: Optional[str] = None
 
 
+class ReceiptCreate(ReceiptFields):
+    receipt_file_id: str
+    source_extraction_id: Optional[str] = None
+
+
+class ReceiptUpdate(ReceiptFields):
+    pass
+
+
+class ReceiptRead(ReceiptFields):
+    id: str
+    user_id: str
+    status: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
 class ReceiptExtractionResponse(BaseModel):
     extraction_id: str
     receipt_file_id: str
