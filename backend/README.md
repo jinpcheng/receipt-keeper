@@ -24,6 +24,10 @@ Auth + extraction flow:
 1) Register/Login to get `access_token`
 2) `POST /api/v1/receipts/extractions` with `Authorization: Bearer <token>` and form-data `file`
 
+Queries + export:
+- `GET /api/v1/receipts` with filters: `start_date`, `end_date`, `category`, `min_total`, `max_total`, `payment_type`, `vendor`
+- `GET /api/v1/receipts/export` returns CSV
+
 Migrations:
 
 ```bash

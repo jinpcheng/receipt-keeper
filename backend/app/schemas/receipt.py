@@ -50,3 +50,10 @@ class ReceiptExtractionResponse(BaseModel):
     confidence: Optional[float] = None
     model_name: str
     ocr_text: Optional[str] = None
+
+
+class ReceiptListResponse(BaseModel):
+    items: list[ReceiptRead]
+    page: int
+    page_size: int
+    total: int
