@@ -19,3 +19,9 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 Health check:
 `GET http://localhost:8000/api/v1/health`
+
+Migrations:
+
+```bash
+alembic -c alembic.ini upgrade head
+```
