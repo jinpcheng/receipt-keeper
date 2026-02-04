@@ -7,12 +7,13 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
 from app.core.config import settings
+from app.crud.receipt import attach_file_to_receipt, create_receipt, get_receipt_by_id, update_receipt
 from app.models.enums import ExtractionStatus
 from app.models.receipt_extraction import ReceiptExtraction
 from app.models.receipt_file import ReceiptFile
 from app.models.user import User
 from app.db.session import get_db
-from app.schemas.receipt import ReceiptExtractionResponse, ReceiptFields
+from app.schemas.receipt import ReceiptCreate, ReceiptExtractionResponse, ReceiptFields, ReceiptRead, ReceiptUpdate
 from app.services.extraction import extract_receipt
 
 
@@ -107,3 +108,31 @@ def create_extraction(
         model_name=extraction.model_name,
         ocr_text=extraction.raw_ocr_text,
     )
+
+
+@router.post("", response_model=ReceiptRead, status_code=status.HTTP_201_CREATED)
+def create_receipt_record(
+    payload: ReceiptCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    data = payload.model_dump(exclude={"receipt_file_id"})
+    receipt = create_receipt(db, user_id=current_user.id, data=data)
+    attach_file_to_receipt(db, uuid.UUID(payload.receipt_file_id), receipt.id)
+    return ReceiptRead.model_validate(receipt)
+
+
+@router.patch("/{receipt_id}", response_model=ReceiptRead)
+def update_receipt_record(
+    receipt_id: uuid.UUID,
+    payload: ReceiptUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    receipt = get_receipt_by_id(db, receipt_id=receipt_id, user_id=current_user.id)
+    if not receipt:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Receipt not found")
+
+    data = payload.model_dump(exclude_unset=True)
+    receipt = update_receipt(db, receipt, data)
+    return ReceiptRead.model_validate(receipt)
