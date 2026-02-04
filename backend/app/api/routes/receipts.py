@@ -5,12 +5,13 @@ from datetime import datetime
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
-from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
 from app.core.config import settings
 from app.crud.receipt import attach_file_to_receipt, create_receipt, get_receipt_by_id, update_receipt
+from app.crud.receipt_file import get_receipt_file_for_receipt
 from app.crud.receipt_query import query_receipts
 from app.models.enums import ExtractionStatus
 from app.models.receipt_extraction import ReceiptExtraction
@@ -257,3 +258,27 @@ def export_receipts_csv(
     response = StreamingResponse(buffer, media_type="text/csv")
     response.headers["Content-Disposition"] = "attachment; filename=receipts.csv"
     return response
+
+
+@router.get("/{receipt_id}/photo")
+def get_receipt_photo(
+    receipt_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    receipt = get_receipt_by_id(db, receipt_id=receipt_id, user_id=current_user.id)
+    if not receipt:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Receipt not found")
+
+    receipt_file = get_receipt_file_for_receipt(db, receipt_id=receipt_id, user_id=current_user.id)
+    if not receipt_file:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Receipt file not found")
+
+    if not Path(receipt_file.file_path).exists():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Receipt photo missing")
+
+    return FileResponse(
+        receipt_file.file_path,
+        media_type=receipt_file.mime_type,
+        filename=receipt_file.file_name,
+    )
