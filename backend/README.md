@@ -51,6 +51,11 @@ Coverage:
 - Coverage reports are generated in the test output and `coverage.xml`.
 - Tests fail if coverage drops below 80%.
 
+Git hook (optional):
+- Enable repo hooks: `git config core.hooksPath .githooks`
+- The pre-commit hook runs backend tests when `backend/` files are staged.
+- Set `TEST_DATABASE_URL` so the hook can run tests.
+
 Migrations:
 
 ```bash
