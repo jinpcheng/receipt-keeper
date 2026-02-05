@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/detail_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/detail_title"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <EditText
+        android:id="@+id/detail_vendor"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/detail_vendor"
+        app:layout_constraintTop_toBottomOf="@id/detail_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <EditText
+        android:id="@+id/detail_total"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/detail_total"
+        android:inputType="numberDecimal"
+        app:layout_constraintTop_toBottomOf="@id/detail_vendor"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp" />
+
+    <EditText
+        android:id="@+id/detail_notes"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/detail_notes"
+        app:layout_constraintTop_toBottomOf="@id/detail_total"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp" />
+
+    <Button
+        android:id="@+id/detail_save"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/detail_save"
+        app:layout_constraintTop_toBottomOf="@id/detail_notes"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp" />
+
+    <TextView
+        android:id="@+id/detail_status"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/detail_status_idle"
+        app:layout_constraintTop_toBottomOf="@id/detail_save"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

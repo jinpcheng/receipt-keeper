@@ -21,6 +21,7 @@ import java.io.File
 
 class MainActivity : AppCompatActivity() {
     private lateinit var captureButton: Button
+    private lateinit var listButton: Button
     private lateinit var statusText: TextView
     private lateinit var progress: ProgressBar
     private lateinit var photoUri: Uri
@@ -39,11 +40,15 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         captureButton = findViewById(R.id.capture_button)
+        listButton = findViewById(R.id.list_button)
         statusText = findViewById(R.id.capture_status)
         progress = findViewById(R.id.capture_progress)
 
         captureButton.setOnClickListener {
             launchCamera()
+        }
+        listButton.setOnClickListener {
+            startActivity(Intent(this, ReceiptsActivity::class.java))
         }
     }
 

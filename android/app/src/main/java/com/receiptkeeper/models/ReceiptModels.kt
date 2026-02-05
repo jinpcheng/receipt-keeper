@@ -69,4 +69,11 @@ data class ReceiptRead(
     val invoice_number: String? = null,
     val auth_number: String? = null,
     val notes: String? = null
+) : Serializable
+
+data class ReceiptListResponse(
+    val items: List<ReceiptRead>,
+    val page: Int,
+    val page_size: Int,
+    val total: Int
 )

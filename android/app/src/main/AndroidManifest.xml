@@ -17,6 +17,8 @@
         </activity>
         <activity android:name=".MainActivity" />
         <activity android:name=".ReviewActivity" />
+        <activity android:name=".ReceiptsActivity" />
+        <activity android:name=".ReceiptDetailActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
