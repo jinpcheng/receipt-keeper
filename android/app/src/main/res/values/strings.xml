@@ -22,4 +22,15 @@
     <string name="review_back">Back</string>
     <string name="review_saved">Receipt saved.</string>
     <string name="review_save_failed">Save failed.</string>
+    <string name="list_title">Receipts</string>
+    <string name="list_empty">No receipts yet.</string>
+    <string name="list_refresh">Refresh</string>
+    <string name="detail_title">Receipt detail</string>
+    <string name="detail_vendor">Vendor</string>
+    <string name="detail_total">Total</string>
+    <string name="detail_notes">Notes</string>
+    <string name="detail_save">Save changes</string>
+    <string name="detail_status_idle">Edit fields and save.</string>
+    <string name="detail_saved">Saved.</string>
+    <string name="detail_save_failed">Save failed.</string>
 </resources>
