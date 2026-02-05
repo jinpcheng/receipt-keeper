@@ -27,11 +27,46 @@
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp">
 
-        <TextView
-            android:id="@+id/review_content"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp" />
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/review_vendor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/detail_vendor" />
+
+            <EditText
+                android:id="@+id/review_total"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:hint="@string/detail_total"
+                android:layout_marginTop="12dp" />
+
+            <EditText
+                android:id="@+id/review_category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/review_category"
+                android:layout_marginTop="12dp" />
+
+            <EditText
+                android:id="@+id/review_notes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/detail_notes"
+                android:layout_marginTop="12dp" />
+
+            <TextView
+                android:id="@+id/review_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/review_status_idle"
+                android:layout_marginTop="16dp" />
+        </LinearLayout>
     </ScrollView>
 
     <LinearLayout

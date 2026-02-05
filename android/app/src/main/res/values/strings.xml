@@ -22,6 +22,8 @@
     <string name="review_back">Back</string>
     <string name="review_saved">Receipt saved.</string>
     <string name="review_save_failed">Save failed.</string>
+    <string name="review_status_idle">Review and edit fields before saving.</string>
+    <string name="review_category">Category</string>
     <string name="list_title">Receipts</string>
     <string name="list_empty">No receipts yet.</string>
     <string name="list_refresh">Refresh</string>
