@@ -2,6 +2,7 @@ package com.receiptkeeper
 
 import android.os.Bundle
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -16,56 +17,59 @@ class ReviewActivity : AppCompatActivity() {
         setContentView(R.layout.activity_review)
 
         val extraction = intent.getSerializableExtra(EXTRA_EXTRACTION) as? ReceiptExtractionResponse
-        val content = findViewById<TextView>(R.id.review_content)
+        val vendorInput = findViewById<EditText>(R.id.review_vendor)
+        val totalInput = findViewById<EditText>(R.id.review_total)
+        val categoryInput = findViewById<EditText>(R.id.review_category)
+        val notesInput = findViewById<EditText>(R.id.review_notes)
+        val statusText = findViewById<TextView>(R.id.review_status)
         val saveButton = findViewById<Button>(R.id.review_save)
         val backButton = findViewById<Button>(R.id.review_back)
 
         if (extraction == null) {
-            content.text = getString(R.string.review_save_failed)
+            statusText.text = getString(R.string.review_save_failed)
             saveButton.isEnabled = false
             return
         }
 
-        content.text = buildSummary(extraction)
+        val fields = extraction.extracted
+        vendorInput.setText(fields.vendor_name ?: "")
+        totalInput.setText(fields.total?.toString() ?: "")
+        categoryInput.setText(fields.category ?: "")
+        notesInput.setText(fields.notes ?: "")
 
         backButton.setOnClickListener { finish() }
         saveButton.setOnClickListener {
-            saveReceipt(extraction, content)
+            saveReceipt(
+                extraction,
+                vendorInput.text.toString(),
+                totalInput.text.toString(),
+                categoryInput.text.toString(),
+                notesInput.text.toString(),
+                statusText
+            )
         }
     }
 
-    private fun buildSummary(extraction: ReceiptExtractionResponse): String {
+    private fun saveReceipt(
+        extraction: ReceiptExtractionResponse,
+        vendor: String,
+        total: String,
+        category: String,
+        notes: String,
+        statusText: TextView
+    ) {
         val fields = extraction.extracted
-        return listOf(
-            "Vendor: ${fields.vendor_name ?: "-"}",
-            "Location: ${fields.location ?: "-"}",
-            "Date: ${fields.purchased_at ?: "-"}",
-            "Category: ${fields.category ?: "-"}",
-            "Subtotal: ${fields.subtotal ?: "-"}",
-            "Tax: ${fields.tax ?: "-"}",
-            "Total: ${fields.total ?: "-"}",
-            "Currency: ${fields.currency ?: "-"}",
-            "Payment: ${fields.payment_type ?: "-"}",
-            "Card: ${fields.card_type ?: "-"} ${fields.card_last4 ?: ""}",
-            "Ref#: ${fields.ref_number ?: "-"}",
-            "Invoice#: ${fields.invoice_number ?: "-"}",
-            "Auth#: ${fields.auth_number ?: "-"}",
-            "Notes: ${fields.notes ?: "-"}"
-        ).joinToString("\n")
-    }
-
-    private fun saveReceipt(extraction: ReceiptExtractionResponse, content: TextView) {
-        val fields = extraction.extracted
+        val parsedTotal = total.toDoubleOrNull()
         val request = ReceiptCreateRequest(
             receipt_file_id = extraction.receipt_file_id,
             source_extraction_id = extraction.extraction_id,
-            vendor_name = fields.vendor_name,
+            vendor_name = vendor.ifBlank { fields.vendor_name },
             location = fields.location,
             purchased_at = fields.purchased_at,
-            category = fields.category,
+            category = category.ifBlank { fields.category },
             subtotal = fields.subtotal,
             tax = fields.tax,
-            total = fields.total,
+            total = parsedTotal ?: fields.total,
             currency = fields.currency,
             payment_type = fields.payment_type,
             card_type = fields.card_type,
@@ -73,15 +77,15 @@ class ReviewActivity : AppCompatActivity() {
             ref_number = fields.ref_number,
             invoice_number = fields.invoice_number,
             auth_number = fields.auth_number,
-            notes = fields.notes
+            notes = notes.ifBlank { fields.notes }
         )
 
         lifecycleScope.launch {
             try {
                 ApiClient.receiptService.createReceipt(request)
-                content.text = getString(R.string.review_saved)
+                statusText.text = getString(R.string.review_saved)
             } catch (ex: Exception) {
-                content.text = getString(R.string.review_save_failed)
+                statusText.text = getString(R.string.review_save_failed)
             }
         }
     }
