@@ -60,3 +60,14 @@ PC backend (service):
 4) Android app scaffold (auth, camera capture, upload, review/confirm, list/search, detail/edit).
 5) Deployment (Docker Compose: API + Postgres + Ollama).
 6) QA (E2E flow, OCR accuracy tests, security tests, CSV export validation).
+
+## Status (2026-02-07)
+
+- [x] Repo initialized.
+- [x] Backend scaffold: FastAPI + Postgres + JWT + storage.
+- [x] Android scaffold: auth + capture + upload + review/edit + list/search.
+- [x] Deployment: Docker Compose (API + Postgres + Ollama).
+- [x] Backend unit tests: enforced at 100% line coverage.
+- [x] Android: runtime-configurable API base URL (Settings screen).
+- [ ] Encrypted network traffic (HTTPS on LAN): implemented compose overlay (Caddy), needs device verification.
+- [ ] QA: run the full flow on a physical phone over WiFi and validate CSV export and OCR accuracy.
