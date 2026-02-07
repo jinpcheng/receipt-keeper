@@ -25,7 +25,7 @@ API base URL:
 - Set it at runtime via the Settings button on the main screen.
 - Examples:
   - Phone (HTTP): `http://<PC-LAN-IP>:8081/api/v1/`
-  - Phone (HTTPS via Caddy): `https://<PC-LAN-IP>:8443/api/v1/`
+  - HTTPS will be handled later via APIM/reverse-proxy.
 
 Notes:
-- Debug builds allow cleartext HTTP and trust user-installed CAs (required for local HTTPS-on-LAN testing).
+- Debug builds allow cleartext HTTP and trust user-installed CAs.
