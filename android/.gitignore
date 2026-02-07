@@ -1,0 +1,11 @@
+# Gradle caches (generated)
+.gradle/
+.gradle-bootstrap/
+.gradle-user-home/
+
+# Local Android SDK path (developer machine specific)
+local.properties
+
+# Build outputs
+**/build/
+
