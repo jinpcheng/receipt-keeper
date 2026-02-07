@@ -69,5 +69,5 @@ PC backend (service):
 - [x] Deployment: Docker Compose (API + Postgres + Ollama).
 - [x] Backend unit tests: enforced at 100% line coverage.
 - [x] Android: runtime-configurable API base URL (Settings screen).
-- [ ] Encrypted network traffic (HTTPS on LAN): implemented compose overlay (Caddy), needs device verification.
+- [ ] Encrypted network traffic (HTTPS on LAN): deferred (APIM/reverse-proxy later).
 - [ ] QA: run the full flow on a physical phone over WiFi and validate CSV export and OCR accuracy.
