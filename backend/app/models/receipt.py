@@ -49,7 +49,13 @@ class Receipt(Base):
         server_default="confirmed",
     )
     source_extraction_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("receipt_extractions.id"), nullable=True
+        UUID(as_uuid=True),
+        ForeignKey(
+            "receipt_extractions.id",
+            name="fk_receipts_source_extraction_id",
+            use_alter=True,
+        ),
+        nullable=True,
     )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(

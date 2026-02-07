@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional
+import uuid
 
 from pydantic import BaseModel
 
@@ -23,8 +24,8 @@ class ReceiptFields(BaseModel):
 
 
 class ReceiptCreate(ReceiptFields):
-    receipt_file_id: str
-    source_extraction_id: Optional[str] = None
+    receipt_file_id: uuid.UUID
+    source_extraction_id: Optional[uuid.UUID] = None
 
 
 class ReceiptUpdate(ReceiptFields):
@@ -32,8 +33,8 @@ class ReceiptUpdate(ReceiptFields):
 
 
 class ReceiptRead(ReceiptFields):
-    id: str
-    user_id: str
+    id: uuid.UUID
+    user_id: uuid.UUID
     status: str
     created_at: datetime
     updated_at: datetime
@@ -43,8 +44,8 @@ class ReceiptRead(ReceiptFields):
 
 
 class ReceiptExtractionResponse(BaseModel):
-    extraction_id: str
-    receipt_file_id: str
+    extraction_id: uuid.UUID
+    receipt_file_id: uuid.UUID
     status: str
     extracted: ReceiptFields
     confidence: Optional[float] = None

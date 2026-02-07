@@ -47,6 +47,15 @@ pip install -r requirements.txt -r requirements-dev.txt
 pytest
 ```
 
+Run tests via Docker Compose (uses the `db` service):
+
+```bash
+docker compose up -d
+docker compose exec db psql -U receipt_user -d postgres -c "CREATE DATABASE receipt_keeper_test;"
+docker compose exec api python -m pip install -r /app/requirements-dev.txt
+docker compose exec -w /app -e PYTHONPATH=/app -e TEST_DATABASE_URL=postgresql+psycopg2://receipt_user:receipt_pass@db:5432/receipt_keeper_test api pytest
+```
+
 Coverage:
 - Coverage reports are generated in the test output and `coverage.xml`.
 - Tests fail if coverage drops below 80%.
@@ -71,6 +80,7 @@ docker compose exec api alembic -c alembic.ini upgrade head
 
 OCR + LLM setup:
 - OCR uses PaddleOCR (CPU). LLM uses Ollama.
+- For local installs, Python 3.10 is recommended to avoid PyMuPDF build issues.
 - Pull a model into Ollama (example):
 
 ```bash
