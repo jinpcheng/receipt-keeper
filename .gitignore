@@ -4,3 +4,5 @@ backend/.coverage
 backend/htmlcov/
 __pycache__
 backend/coverage-report.xml
+.idea/
+*.iml
