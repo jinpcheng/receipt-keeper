@@ -35,4 +35,14 @@
     <string name="detail_status_idle">Edit fields and save.</string>
     <string name="detail_saved">Saved.</string>
     <string name="detail_save_failed">Save failed.</string>
+    <string name="settings_button">Settings</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_api_base_url_hint">API Base URL (http://PC-IP:8081/api/v1/)</string>
+    <string name="settings_save">Save</string>
+    <string name="settings_saved">Saved.</string>
+    <string name="settings_test">Test connection</string>
+    <string name="settings_testing">Testing...</string>
+    <string name="settings_test_ok">Connected.</string>
+    <string name="settings_test_failed">Failed to connect.</string>
+    <string name="settings_status_idle">Set the backend base URL (use your PC LAN IP).</string>
 </resources>

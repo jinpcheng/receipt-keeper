@@ -22,6 +22,7 @@ import java.io.File
 class MainActivity : AppCompatActivity() {
     private lateinit var captureButton: Button
     private lateinit var listButton: Button
+    private lateinit var settingsButton: Button
     private lateinit var statusText: TextView
     private lateinit var progress: ProgressBar
     private lateinit var photoUri: Uri
@@ -41,6 +42,7 @@ class MainActivity : AppCompatActivity() {
 
         captureButton = findViewById(R.id.capture_button)
         listButton = findViewById(R.id.list_button)
+        settingsButton = findViewById(R.id.settings_button)
         statusText = findViewById(R.id.capture_status)
         progress = findViewById(R.id.capture_progress)
 
@@ -49,6 +51,9 @@ class MainActivity : AppCompatActivity() {
         }
         listButton.setOnClickListener {
             startActivity(Intent(this, ReceiptsActivity::class.java))
+        }
+        settingsButton.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
         }
     }
 
