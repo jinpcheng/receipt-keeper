@@ -1,14 +1,15 @@
 import io
 
 import pytest
-from httpx import AsyncClient
+import httpx
 
 from app.services.extraction import ExtractionResult
 
 
 @pytest.mark.asyncio
 async def test_auth_register_and_login(app):
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         register = await client.post(
             "/api/v1/auth/register",
             json={"email": "user@example.com", "password": "ChangeMe123!"},
@@ -30,7 +31,8 @@ async def test_auth_register_and_login(app):
 
 @pytest.mark.asyncio
 async def test_auth_refresh_and_invalid_login(app):
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         register = await client.post(
             "/api/v1/auth/register",
             json={"email": "refresh@example.com", "password": "ChangeMe123!"},
@@ -62,7 +64,8 @@ async def test_receipt_flow(app, monkeypatch, tmp_path):
     monkeypatch.setattr("app.api.routes.receipts.extract_receipt", fake_extract_receipt)
     monkeypatch.setattr("app.core.config.settings.storage_dir", str(tmp_path))
 
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         register = await client.post(
             "/api/v1/auth/register",
             json={"email": "flow@example.com", "password": "ChangeMe123!"},

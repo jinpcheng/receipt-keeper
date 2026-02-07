@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
 from fastapi.responses import FileResponse, StreamingResponse
 from sqlalchemy.orm import Session
 
@@ -35,7 +35,7 @@ router = APIRouter(prefix="/receipts")
 @router.post("/extractions", response_model=ReceiptExtractionResponse, status_code=status.HTTP_201_CREATED)
 def create_extraction(
     file: UploadFile = File(...),
-    currency: str | None = None,
+    currency: str | None = Form(default=None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -112,8 +112,8 @@ def create_extraction(
     db.refresh(extraction)
 
     return ReceiptExtractionResponse(
-        extraction_id=str(extraction.id),
-        receipt_file_id=str(receipt_file.id),
+        extraction_id=extraction.id,
+        receipt_file_id=receipt_file.id,
         status=extraction.status.value,
         extracted=extracted_fields,
         confidence=float(extraction.confidence) if extraction.confidence is not None else None,
@@ -128,9 +128,17 @@ def create_receipt_record(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    receipt_file = (
+        db.query(ReceiptFile)
+        .filter(ReceiptFile.id == payload.receipt_file_id, ReceiptFile.user_id == current_user.id)
+        .first()
+    )
+    if not receipt_file:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Receipt file not found")
+
     data = payload.model_dump(exclude={"receipt_file_id"})
     receipt = create_receipt(db, user_id=current_user.id, data=data)
-    attach_file_to_receipt(db, uuid.UUID(payload.receipt_file_id), receipt.id)
+    attach_file_to_receipt(db, payload.receipt_file_id, receipt.id)
     return ReceiptRead.model_validate(receipt)
 
 

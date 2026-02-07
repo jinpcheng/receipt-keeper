@@ -15,7 +15,20 @@ branch_labels = None
 depends_on = None
 
 
-receipt_category = sa.Enum(
+class EnumType(postgresql.ENUM):
+    def copy(self, **kw):
+        copied = super().copy(**kw)
+        copied._create_events = False
+        return copied
+
+
+def pg_enum(*args, **kwargs):
+    enum = EnumType(*args, **kwargs)
+    enum._create_events = False
+    return enum
+
+
+receipt_category = pg_enum(
     "gas",
     "food",
     "office",
@@ -27,7 +40,7 @@ receipt_category = sa.Enum(
     "other",
     name="receipt_category",
 )
-payment_type = sa.Enum(
+payment_type = pg_enum(
     "credit_card",
     "debit_card",
     "cash",
@@ -36,7 +49,7 @@ payment_type = sa.Enum(
     "other",
     name="payment_type",
 )
-card_type = sa.Enum(
+card_type = pg_enum(
     "visa",
     "mastercard",
     "amex",
@@ -45,8 +58,17 @@ card_type = sa.Enum(
     "unknown",
     name="card_type",
 )
-receipt_status = sa.Enum("draft", "confirmed", name="receipt_status")
-extraction_status = sa.Enum("pending", "completed", "failed", name="extraction_status")
+receipt_status = pg_enum(
+    "draft",
+    "confirmed",
+    name="receipt_status",
+)
+extraction_status = pg_enum(
+    "pending",
+    "completed",
+    "failed",
+    name="extraction_status",
+)
 
 
 def upgrade() -> None:

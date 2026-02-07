@@ -2,7 +2,7 @@ import os
 from typing import Generator
 
 import pytest
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import Session, sessionmaker
 
 import app.models  # noqa: F401
@@ -19,10 +19,16 @@ def engine():
     if not TEST_DATABASE_URL:
         pytest.skip("TEST_DATABASE_URL is not set")
     engine = create_engine(TEST_DATABASE_URL)
-    Base.metadata.drop_all(engine)
+    # Reset the schema in a DB-native way so the test DB is resilient to
+    # constraint/type renames and FK cycles.
+    with engine.begin() as conn:
+        conn.execute(text("DROP SCHEMA IF EXISTS public CASCADE"))
+        conn.execute(text("CREATE SCHEMA public"))
     Base.metadata.create_all(engine)
     yield engine
-    Base.metadata.drop_all(engine)
+    with engine.begin() as conn:
+        conn.execute(text("DROP SCHEMA IF EXISTS public CASCADE"))
+        conn.execute(text("CREATE SCHEMA public"))
     engine.dispose()
 
 
