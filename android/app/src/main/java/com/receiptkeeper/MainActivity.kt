@@ -1,13 +1,17 @@
 package com.receiptkeeper
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.util.Log
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.receiptkeeper.api.ApiClient
@@ -36,6 +40,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val requestCameraPermission =
+        registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                launchCameraInternal()
+            } else {
+                statusText.text = getString(R.string.capture_permission_denied)
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -47,7 +60,7 @@ class MainActivity : AppCompatActivity() {
         progress = findViewById(R.id.capture_progress)
 
         captureButton.setOnClickListener {
-            launchCamera()
+            ensureCameraPermissionAndLaunch()
         }
         listButton.setOnClickListener {
             startActivity(Intent(this, ReceiptsActivity::class.java))
@@ -57,19 +70,39 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun launchCamera() {
+    private fun ensureCameraPermissionAndLaunch() {
+        val granted = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+        if (granted) {
+            launchCameraInternal()
+        } else {
+            requestCameraPermission.launch(Manifest.permission.CAMERA)
+        }
+    }
+
+    private fun launchCameraInternal() {
         val dir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         if (dir == null) {
             statusText.text = getString(R.string.capture_storage_error)
             return
         }
-        photoFile = File.createTempFile("receipt_", ".jpg", dir)
-        photoUri = FileProvider.getUriForFile(
-            this,
-            "${BuildConfig.APPLICATION_ID}.fileprovider",
-            photoFile
-        )
-        takePicture.launch(photoUri)
+
+        try {
+            // Some devices/emulators can fail to create temp files; avoid crashing the app.
+            if (!dir.exists() && !dir.mkdirs()) {
+                statusText.text = getString(R.string.capture_storage_error)
+                return
+            }
+            photoFile = File.createTempFile("receipt_", ".jpg", dir)
+            photoUri = FileProvider.getUriForFile(
+                this,
+                "${BuildConfig.APPLICATION_ID}.fileprovider",
+                photoFile
+            )
+            takePicture.launch(photoUri)
+        } catch (ex: Exception) {
+            Log.e("MainActivity", "launchCamera failed", ex)
+            statusText.text = getString(R.string.capture_camera_error)
+        }
     }
 
     private fun setLoading(loading: Boolean) {
