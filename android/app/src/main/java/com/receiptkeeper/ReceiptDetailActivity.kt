@@ -1,5 +1,6 @@
 package com.receiptkeeper
 
+import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -9,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.receiptkeeper.api.ApiClient
 import com.receiptkeeper.models.ReceiptRead
 import kotlinx.coroutines.launch
+import java.io.Serializable
 
 class ReceiptDetailActivity : AppCompatActivity() {
     private lateinit var receipt: ReceiptRead
@@ -17,7 +19,12 @@ class ReceiptDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_receipt_detail)
 
-        receipt = intent.getSerializableExtra(EXTRA_RECEIPT) as ReceiptRead
+        val extra = getSerializableCompat(EXTRA_RECEIPT, ReceiptRead::class.java)
+        if (extra == null) {
+            finish()
+            return
+        }
+        receipt = extra
 
         val vendor = findViewById<EditText>(R.id.detail_vendor)
         val total = findViewById<EditText>(R.id.detail_total)
@@ -54,5 +61,16 @@ class ReceiptDetailActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_RECEIPT = "extra_receipt"
+    }
+
+    private fun <T : Serializable> getSerializableCompat(key: String, clazz: Class<T>): T? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getSerializableExtra(key, clazz)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getSerializableExtra(key)?.let { value ->
+                if (clazz.isInstance(value)) clazz.cast(value) else null
+            }
+        }
     }
 }
