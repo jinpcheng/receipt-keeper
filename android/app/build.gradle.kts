@@ -3,6 +3,15 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
+fun debugBuildNumber(): Int {
+    val fromEnv = System.getenv("BUILD_NUMBER")?.toIntOrNull()
+    if (fromEnv != null) return fromEnv
+    // Epoch seconds fits in Int today and gives monotonic-ish builds on a single machine.
+    return (System.currentTimeMillis() / 1000L).toInt()
+}
+
+val baseVersionName = "0.1.0"
+
 android {
     namespace = "com.receiptkeeper"
     compileSdk = 34
@@ -12,7 +21,7 @@ android {
         minSdk = 26
         targetSdk = 34
         versionCode = 1
-        versionName = "0.1.0"
+        versionName = baseVersionName
         buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8081/api/v1/\"")
     }
 
@@ -37,6 +46,18 @@ android {
 
     buildFeatures {
         buildConfig = true
+    }
+}
+
+// Make debug builds always increase so installs upgrade cleanly on emulator/phone.
+// Release versions should be set explicitly for store distribution.
+androidComponents {
+    onVariants(selector().withBuildType("debug")) { variant ->
+        val n = debugBuildNumber()
+        variant.outputs.forEach { output ->
+            output.versionCode.set(n)
+            output.versionName.set("$baseVersionName+dev.$n")
+        }
     }
 }
 
