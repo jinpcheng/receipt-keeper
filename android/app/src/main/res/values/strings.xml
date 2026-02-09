@@ -17,6 +17,8 @@
     <string name="capture_upload_failed">Upload failed.</string>
     <string name="capture_cancelled">Capture cancelled.</string>
     <string name="capture_storage_error">Storage unavailable.</string>
+    <string name="capture_camera_error">Unable to open camera.</string>
+    <string name="capture_permission_denied">Camera permission denied.</string>
     <string name="review_title">Review receipt</string>
     <string name="review_save">Save receipt</string>
     <string name="review_back">Back</string>
@@ -40,6 +42,7 @@
     <string name="settings_api_base_url_hint">API Base URL (http://PC-IP:8081/api/v1/)</string>
     <string name="settings_save">Save</string>
     <string name="settings_saved">Saved.</string>
+    <string name="settings_close">Close</string>
     <string name="settings_test">Test connection</string>
     <string name="settings_testing">Testing...</string>
     <string name="settings_test_ok">Connected.</string>

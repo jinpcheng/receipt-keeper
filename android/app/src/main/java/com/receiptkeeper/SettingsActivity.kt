@@ -5,6 +5,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.receiptkeeper.api.ApiClient
@@ -27,6 +28,7 @@ class SettingsActivity : AppCompatActivity() {
         val progress = findViewById<ProgressBar>(R.id.settings_progress)
         val saveButton = findViewById<Button>(R.id.settings_save)
         val testButton = findViewById<Button>(R.id.settings_test)
+        val closeButton = findViewById<Button>(R.id.settings_close)
 
         urlInput.setText(ApiClient.currentBaseUrl())
 
@@ -34,6 +36,11 @@ class SettingsActivity : AppCompatActivity() {
             progress.visibility = if (loading) ProgressBar.VISIBLE else ProgressBar.GONE
             saveButton.isEnabled = !loading
             testButton.isEnabled = !loading
+            closeButton.isEnabled = !loading
+        }
+
+        closeButton.setOnClickListener {
+            finish()
         }
 
         saveButton.setOnClickListener {
@@ -41,7 +48,9 @@ class SettingsActivity : AppCompatActivity() {
             val normalized = BaseUrlStore.normalize(value)
             ApiClient.setBaseUrl(normalized)
             urlInput.setText(normalized)
-            statusText.text = getString(R.string.settings_saved)
+            Toast.makeText(this, getString(R.string.settings_saved), Toast.LENGTH_SHORT).show()
+            setResult(RESULT_OK)
+            finish()
         }
 
         testButton.setOnClickListener {
@@ -74,4 +83,3 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 }
-
