@@ -1,5 +1,6 @@
 package com.receiptkeeper
 
+import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -10,13 +11,14 @@ import com.receiptkeeper.api.ApiClient
 import com.receiptkeeper.models.ReceiptCreateRequest
 import com.receiptkeeper.models.ReceiptExtractionResponse
 import kotlinx.coroutines.launch
+import java.io.Serializable
 
 class ReviewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_review)
 
-        val extraction = intent.getSerializableExtra(EXTRA_EXTRACTION) as? ReceiptExtractionResponse
+        val extraction = getSerializableCompat(EXTRA_EXTRACTION, ReceiptExtractionResponse::class.java)
         val vendorInput = findViewById<EditText>(R.id.review_vendor)
         val totalInput = findViewById<EditText>(R.id.review_total)
         val categoryInput = findViewById<EditText>(R.id.review_category)
@@ -92,5 +94,16 @@ class ReviewActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_EXTRACTION = "extra_extraction"
+    }
+
+    private fun <T : Serializable> getSerializableCompat(key: String, clazz: Class<T>): T? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getSerializableExtra(key, clazz)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getSerializableExtra(key)?.let { value ->
+                if (clazz.isInstance(value)) clazz.cast(value) else null
+            }
+        }
     }
 }
