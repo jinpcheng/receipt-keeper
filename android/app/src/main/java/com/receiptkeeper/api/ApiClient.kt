@@ -4,11 +4,16 @@ import android.content.Context
 import com.receiptkeeper.BuildConfig
 import com.receiptkeeper.storage.BaseUrlStore
 import com.receiptkeeper.storage.TokenStore
+import com.receiptkeeper.models.RefreshResponse
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import okhttp3.Authenticator
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.logging.HttpLoggingInterceptor
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
@@ -44,10 +49,43 @@ object ApiClient {
         chain.proceed(newRequest)
     }
 
+    private val tokenAuthenticator = Authenticator { _, response ->
+        if (!initialized) return@Authenticator null
+        // Don't try to refresh if we're already calling refresh, or if we've already failed once.
+        if (response.request.url.encodedPath.endsWith("/auth/refresh")) return@Authenticator null
+        if (responseCount(response) >= 2) return@Authenticator null
+
+        val refreshToken = tokenStore.refreshToken()
+        if (refreshToken.isNullOrBlank()) {
+            tokenStore.clear()
+            return@Authenticator null
+        }
+
+        // If another request refreshed the token, just retry with the latest one.
+        val currentAccess = tokenStore.accessToken()
+        val requestAuth = response.request.header("Authorization")
+        if (!currentAccess.isNullOrBlank() && requestAuth != null && requestAuth != "Bearer $currentAccess") {
+            return@Authenticator response.request.newBuilder()
+                .header("Authorization", "Bearer $currentAccess")
+                .build()
+        }
+
+        val newAccess = refreshAccessToken(refreshToken) ?: run {
+            tokenStore.clear()
+            return@Authenticator null
+        }
+        tokenStore.saveAccessToken(newAccess)
+
+        response.request.newBuilder()
+            .header("Authorization", "Bearer $newAccess")
+            .build()
+    }
+
     private val client: OkHttpClient by lazy {
         OkHttpClient.Builder()
             .addInterceptor(logging)
             .addInterceptor(authInterceptor)
+            .authenticator(tokenAuthenticator)
             .build()
     }
 
@@ -99,6 +137,45 @@ object ApiClient {
             tokenStore = TokenStore(context.applicationContext)
             baseUrlStore = BaseUrlStore(context.applicationContext)
             initialized = true
+        }
+    }
+
+    private fun responseCount(response: okhttp3.Response): Int {
+        var r: okhttp3.Response? = response
+        var count = 1
+        while (r?.priorResponse != null) {
+            count++
+            r = r.priorResponse
+        }
+        return count
+    }
+
+    private fun refreshAccessToken(refreshToken: String): String? {
+        return try {
+            val baseUrl = baseUrlStore.get()
+            val url = baseUrl + "auth/refresh"
+
+            val json = """{"refresh_token":"${refreshToken.replace("\"", "\\\"")}"}"""
+            val body = json.toRequestBody("application/json".toMediaTypeOrNull())
+
+            val request = Request.Builder()
+                .url(url)
+                .post(body)
+                .build()
+
+            OkHttpClient.Builder()
+                .addInterceptor(logging)
+                .build()
+                .newCall(request)
+                .execute()
+                .use { resp ->
+                    if (!resp.isSuccessful) return null
+                    val raw = resp.body?.string() ?: return null
+                    val adapter = moshi.adapter(RefreshResponse::class.java)
+                    adapter.fromJson(raw)?.access_token
+                }
+        } catch (_: Exception) {
+            null
         }
     }
 }
