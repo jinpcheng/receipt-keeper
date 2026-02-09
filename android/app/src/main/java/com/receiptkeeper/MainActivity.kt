@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var captureButton: Button
     private lateinit var listButton: Button
     private lateinit var settingsButton: Button
+    private lateinit var versionText: TextView
     private lateinit var statusText: TextView
     private lateinit var progress: ProgressBar
     private lateinit var photoUri: Uri
@@ -56,8 +57,11 @@ class MainActivity : AppCompatActivity() {
         captureButton = findViewById(R.id.capture_button)
         listButton = findViewById(R.id.list_button)
         settingsButton = findViewById(R.id.settings_button)
+        versionText = findViewById(R.id.main_version)
         statusText = findViewById(R.id.capture_status)
         progress = findViewById(R.id.capture_progress)
+
+        versionText.text = getString(R.string.main_version_format, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE)
 
         captureButton.setOnClickListener {
             ensureCameraPermissionAndLaunch()
