@@ -7,10 +7,12 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.receiptkeeper.auth.AuthNavigator
 import com.receiptkeeper.api.ApiClient
 import com.receiptkeeper.models.ReceiptCreateRequest
 import com.receiptkeeper.models.ReceiptExtractionResponse
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import java.io.Serializable
 
 class ReviewActivity : AppCompatActivity() {
@@ -86,6 +88,12 @@ class ReviewActivity : AppCompatActivity() {
             try {
                 ApiClient.receiptService.createReceipt(request)
                 statusText.text = getString(R.string.review_saved)
+            } catch (ex: HttpException) {
+                if (ex.code() == 401) {
+                    AuthNavigator.goToLogin(this@ReviewActivity)
+                    return@launch
+                }
+                statusText.text = getString(R.string.review_save_failed)
             } catch (ex: Exception) {
                 statusText.text = getString(R.string.review_save_failed)
             }

@@ -22,3 +22,12 @@ data class TokenResponse(
     val token_type: String,
     val user: User
 )
+
+data class RefreshRequest(
+    val refresh_token: String
+)
+
+data class RefreshResponse(
+    val access_token: String,
+    val token_type: String
+)

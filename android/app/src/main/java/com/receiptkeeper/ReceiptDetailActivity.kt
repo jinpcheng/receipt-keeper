@@ -7,9 +7,11 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.receiptkeeper.auth.AuthNavigator
 import com.receiptkeeper.api.ApiClient
 import com.receiptkeeper.models.ReceiptRead
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import java.io.Serializable
 
 class ReceiptDetailActivity : AppCompatActivity() {
@@ -52,6 +54,12 @@ class ReceiptDetailActivity : AppCompatActivity() {
                         )
                     )
                     status.text = getString(R.string.detail_saved)
+                } catch (ex: HttpException) {
+                    if (ex.code() == 401) {
+                        AuthNavigator.goToLogin(this@ReceiptDetailActivity)
+                        return@launch
+                    }
+                    status.text = getString(R.string.detail_save_failed)
                 } catch (ex: Exception) {
                     status.text = getString(R.string.detail_save_failed)
                 }

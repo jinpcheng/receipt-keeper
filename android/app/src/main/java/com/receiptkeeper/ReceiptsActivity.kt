@@ -7,9 +7,11 @@ import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.receiptkeeper.auth.AuthNavigator
 import com.receiptkeeper.api.ApiClient
 import com.receiptkeeper.models.ReceiptRead
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 class ReceiptsActivity : AppCompatActivity() {
     private lateinit var listView: ListView
@@ -45,6 +47,13 @@ class ReceiptsActivity : AppCompatActivity() {
                     emptyView.visibility = TextView.GONE
                 }
                 listView.adapter = ReceiptAdapter(this@ReceiptsActivity, items)
+            } catch (ex: HttpException) {
+                if (ex.code() == 401) {
+                    AuthNavigator.goToLogin(this@ReceiptsActivity)
+                    return@launch
+                }
+                emptyView.text = getString(R.string.list_empty)
+                emptyView.visibility = TextView.VISIBLE
             } catch (ex: Exception) {
                 emptyView.text = getString(R.string.list_empty)
                 emptyView.visibility = TextView.VISIBLE

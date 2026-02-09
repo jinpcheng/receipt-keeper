@@ -27,16 +27,37 @@ class AuthActivity : AppCompatActivity() {
         val progress = findViewById<ProgressBar>(R.id.auth_progress)
 
         val tokenStore = TokenStore(this)
-        if (!tokenStore.accessToken().isNullOrBlank()) {
-            startActivity(Intent(this@AuthActivity, MainActivity::class.java))
-            finish()
-            return
-        }
 
         fun setLoading(loading: Boolean) {
             progress.visibility = if (loading) ProgressBar.VISIBLE else ProgressBar.GONE
             loginButton.isEnabled = !loading
             registerButton.isEnabled = !loading
+        }
+
+        // App start: if we have a valid access token, skip login; if access is expired, try refresh.
+        val existingAccess = tokenStore.accessToken()
+        val existingRefresh = tokenStore.refreshToken()
+        if (!existingAccess.isNullOrBlank() && !tokenStore.isAccessTokenExpired()) {
+            startActivity(Intent(this@AuthActivity, MainActivity::class.java))
+            finish()
+            return
+        }
+        if (!existingRefresh.isNullOrBlank()) {
+            setLoading(true)
+            statusText.text = getString(R.string.auth_status_idle)
+            lifecycleScope.launch {
+                try {
+                    val refreshed = repository.refresh(existingRefresh)
+                    tokenStore.saveAccessToken(refreshed.access_token)
+                    startActivity(Intent(this@AuthActivity, MainActivity::class.java))
+                    finish()
+                } catch (_: Exception) {
+                    tokenStore.clear()
+                    // Stay on login UI.
+                } finally {
+                    setLoading(false)
+                }
+            }
         }
 
         suspend fun handleAuth(isRegister: Boolean) {

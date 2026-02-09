@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
+import com.receiptkeeper.auth.AuthNavigator
 import com.receiptkeeper.api.ApiClient
 import com.receiptkeeper.models.ReceiptExtractionResponse
 import kotlinx.coroutines.launch
@@ -21,6 +22,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.HttpException
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -127,6 +129,12 @@ class MainActivity : AppCompatActivity() {
                 val response = ApiClient.receiptService.createExtraction(filePart, currencyPart)
                 statusText.text = getString(R.string.capture_uploaded)
                 openReview(response)
+            } catch (ex: HttpException) {
+                if (ex.code() == 401) {
+                    AuthNavigator.goToLogin(this@MainActivity)
+                    return@launch
+                }
+                statusText.text = getString(R.string.capture_upload_failed)
             } catch (ex: Exception) {
                 statusText.text = getString(R.string.capture_upload_failed)
             } finally {
