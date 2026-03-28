@@ -20,7 +20,6 @@
     <string name="capture_cancelled">Capture cancelled.</string>
     <string name="capture_storage_error">Storage unavailable.</string>
     <string name="capture_camera_error">Unable to open camera.</string>
-    <string name="capture_permission_denied">Camera permission denied.</string>
     <string name="review_title">Review receipt</string>
     <string name="review_save">Save receipt</string>
     <string name="review_back">Back</string>

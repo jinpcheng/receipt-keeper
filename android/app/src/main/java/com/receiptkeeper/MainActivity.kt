@@ -1,8 +1,6 @@
 package com.receiptkeeper
 
-import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -11,7 +9,6 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.receiptkeeper.auth.AuthNavigator
@@ -43,15 +40,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val requestCameraPermission =
-        registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.RequestPermission()) { granted ->
-            if (granted) {
-                launchCameraInternal()
-            } else {
-                statusText.text = getString(R.string.capture_permission_denied)
-            }
-        }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -66,22 +54,13 @@ class MainActivity : AppCompatActivity() {
         versionText.text = getString(R.string.main_version_format, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE)
 
         captureButton.setOnClickListener {
-            ensureCameraPermissionAndLaunch()
+            launchCameraInternal()
         }
         listButton.setOnClickListener {
             startActivity(Intent(this, ReceiptsActivity::class.java))
         }
         settingsButton.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
-        }
-    }
-
-    private fun ensureCameraPermissionAndLaunch() {
-        val granted = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
-        if (granted) {
-            launchCameraInternal()
-        } else {
-            requestCameraPermission.launch(Manifest.permission.CAMERA)
         }
     }
 
